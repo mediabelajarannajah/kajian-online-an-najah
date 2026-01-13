@@ -1,0 +1,744 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Kajian An-Najah</title>
+    <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: Arial, sans-serif;
+      margin: 20px;
+      line-height: 1.6;
+      background-color: #121212; /* dark background */
+      color: #e0e0e0; /* light text */
+    }
+
+    .container {
+      max-width: 800px;
+      margin: 0 auto;
+      background-color: #1e1e1e; /* darker container */
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+    }
+
+    h1 {
+      color: #ffffff;
+      border-bottom: 2px solid #333;
+      padding-bottom: 10px;
+    }
+
+    h5 {
+      color: #cccccc;
+    }
+
+    #audio-player {
+      width: 100%;
+      margin-bottom: 20px;
+    }
+
+    #current-title {
+      margin-top: 0;
+      color: #90caf9; /* biru terang */
+      font-size: 1.2em;
+      margin-bottom: 5px;
+    }
+
+    #current-subtitle {
+      font-size: 0.9em;
+      color: #aaaaaa;
+      font-style: italic;
+      display: block;
+      margin-bottom: 15px;
+    }
+
+    #playlist-container {
+      list-style: none;
+      padding: 0;
+      border: 1px solid #444;
+      border-radius: 4px;
+      margin-bottom: 10px;
+    }
+
+    #playlist-container li {
+      padding: 12px;
+      cursor: pointer;
+      border-bottom: 1px solid #333;
+      background-color: #1e1e1e;
+      color: #e0e0e0;
+      transition: background-color 0.2s;
+    }
+
+    #playlist-container li:last-child {
+      border-bottom: none;
+    }
+
+    #playlist-container li:hover {
+      background-color: #333;
+    }
+
+    #playlist-container li.current-track {
+      background-color: #333c5a;
+      font-weight: bold;
+      color: #ffffff;
+    }
+
+    .list-title {
+      font-weight: bold;
+      display: block;
+    }
+
+    .list-subtitle {
+      font-size: 0.8em;
+      color: #bbbbbb;
+      display: block;
+      margin-top: 2px;
+    }
+
+    .pagination {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 20px;
+    }
+
+    .pagination button {
+      padding: 8px 12px;
+      background-color: #333;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+
+    .pagination button:disabled {
+      background-color: #555;
+      color: #aaa;
+      cursor: default;
+    }
+
+    @media (max-width: 600px) {
+      body {
+        margin: 10px;
+        font-size: 14px;
+      }
+
+      .container {
+        padding: 15px;
+      }
+
+      h1, h3, h5 {
+        font-size: 1.1em;
+      }
+
+      #current-title {
+        font-size: 1em;
+      }
+
+      #current-subtitle {
+        font-size: 0.85em;
+      }
+
+      #playlist-container li {
+        padding: 10px;
+      }
+
+      .pagination {
+        flex-direction: column;
+        gap: 10px;
+      }
+
+      .pagination button {
+        width: 100%;
+        font-size: 1em;
+      }
+
+      audio {
+        width: 100%;
+      }
+
+      .list-title {
+        font-size: 0.95em;
+      }
+
+      .list-subtitle {
+        font-size: 0.8em;
+      }
+    }
+  </style>
+
+</head>
+<body>
+  <div class="container">
+    <h1>Playlist Audio Kitab Al-Qoulul Mufid fii Adillatit Tauhid</h1>
+    <h5>Pemateri : Ustadz Umar Abu Abdillah</h5>
+    
+
+    <h3 id="current-title">Memuat...</h3>
+    <span id="current-subtitle"></span>
+    <audio id="audio-player" controls></audio>
+
+    <ul id="playlist-container"></ul>
+
+    <div class="pagination">
+      <button id="prev-btn">⬅️ Sebelumnya</button>
+      <button id="next-btn">Selanjutnya ➡️</button>
+    </div>
+
+    <center><font size="2">© 2025 - Yayasan An-Najah Ihya As-Sunnah</font></center>
+  </div>
+
+  <script>
+    const audioFiles = [
+    
+    {
+    "title": "Pertemuan 8",
+    "subtitle": "Latar belakang penulis membahas makna kalimat أن محمدا رسول الله\nDan salah satu ketentuan dari kalimat tersebut",
+    "url": "https://github.com/gplusnation/annajah/raw/refs/heads/main/AUD-20250816-WA0022.m4a"
+  },
+  {
+    "title": "Pertemuan 7",
+    "subtitle": "Ketaatan kepada Ulama dan Pemimpin/Pemerintah",
+    "url": "https://github.com/gplusnation/annajah/raw/refs/heads/main/AUD-20250815-WA0006.m4a"
+  },
+  {
+    "title": "Pertemuan 6",
+    "subtitle": "Makna dari syahadat yang kedua",
+    "url": "https://github.com/gplusnation/annajah/raw/refs/heads/main/AUD-20250814-WA0011.m4a"
+  },
+  {
+    "title": "Pertemuan 5",
+    "subtitle": "",
+    "url": "https://github.com/gplusnation/annajah/raw/refs/heads/main/AUD-20250813-WA0007.m4a"
+  },
+  {
+    "title": "Pertemuan 4",
+    "subtitle": "",
+    "url": "https://github.com/gplusnation/annajah/raw/refs/heads/main/AUD-20250812-WA0010.m4a"
+  },
+  {
+    "title": "Pertemuan 3",
+    "subtitle": "Pentingya Pelajaran Tauhid ",
+    "url": "https://github.com/gplusnation/annajah/raw/refs/heads/main/AUD-20250811-WA0009.m4a"
+  },
+  {
+    "title": "Pertemuan 2",
+    "subtitle": "Tentang Penulis dan KItab yang akan di bahas. (Bagian 2)",
+    "url": "https://github.com/gplusnation/annajah/raw/refs/heads/main/AUD-20250810-WA0002.m4a"
+  },
+  {
+    "title": "Pertemuan 1",
+    "subtitle": "Tentang Penulis dan KItab yang akan di bahas.",
+    "url": "https://github.com/gplusnation/annajah/raw/refs/heads/main/AUD-20250809-WA0003.m4a"
+  },
+  {
+    "title": "Pertemuan 9",
+    "subtitle": "Ketentuan dan konsekwensi dari syahadat\n أن محمدا رسول الله",
+    "url": "https://github.com/gplusnation/annajah/raw/refs/heads/main/WhatsApp%20Audio%202025-08-28%20at%2008.42.22.mp4"
+  },
+  {
+    "title": "Pertemuan 10",
+    "subtitle": "Ketentuan dan konsekwensi syahadat \nأن محمدا رسول الله",
+    "url": "https://github.com/gplusnation/annajah/raw/refs/heads/main/WhatsApp%20Audio%202025-08-29%20at%2009.12.05.mp4"
+  },
+  {
+    "title": "Pertemuan 11",
+    "subtitle": "Dimana Allah",
+    "url": "https://github.com/gplusnation/annajah/raw/refs/heads/main/WhatsApp%20Audio%202025-09-01%20at%2011.24.19.mp4"
+  },
+  {
+    "title": "Pertemuan 12",
+    "subtitle": "Allah ber-istiwa' diatas arsy",
+    "url": "https://github.com/gplusnation/annajah/raw/refs/heads/main/WhatsApp%20Audio%202025-09-02%20at%2012.33.22.mp4"
+  },
+  {
+    "title": "Pertemuan 13",
+    "subtitle": "Dimana Allah?\nDalil dari hadits dan ijma' bahwa Allah beristiwa' diatas Arsy.",
+    "url": "https://github.com/gplusnation/annajah/raw/refs/heads/main/WhatsApp%20Audio%202025-09-03%20at%2009.19.03.mp4"
+  },
+  {
+    "title": "Pertemuan 14",
+    "subtitle": "Bab dimana Allah\nDalil dari akal dan fitrah yang menetapkan Allah berada diatas arsy",
+    "url": "https://github.com/gplusnation/annajah/raw/refs/heads/main/WhatsApp%20Audio%202025-09-04%20at%2009.16.45.mp4"
+  },
+  {
+    "title": "Pertemuan 15",
+    "subtitle": "Bab dimana Allah,\nMakna istiwa'",
+    "url": "https://github.com/gplusnation/annajah/raw/refs/heads/main/WhatsApp%20Audio%202025-09-05%20at%2012.23.29.mp4"
+  },
+  {
+    "title": "Pertemuan 16",
+    "subtitle": "Bab dimana Allah\nAsal mula pemaknaan istiwa' dengan istawla",
+    "url": "https://github.com/gplusnation/annajah/raw/refs/heads/main/WhatsApp%20Audio%202025-09-08%20at%2009.58.52.mp4"
+  },
+  {
+    "title": "Pertemuan 17",
+    "subtitle": "Dimana Allah,\nBantahan untuk yang memaknai istiwa' dengan istaula",
+    "url": "https://github.com/gplusnation/annajah/raw/refs/heads/main/WhatsApp%20Audio%202025-09-09%20at%2009.55.02.mp4"
+  },
+  {
+    "title": "Pertemuan 18",
+    "subtitle": "Bab dimana Allah, apakah sifat al-'ulu (maha tinggi) dan sifat al-ma'iyyah (bersama makhluk) saling bertentangan",
+    "url": "https://github.com/gplusnation/annajah/raw/refs/heads/main/WhatsApp%20Audio%202025-09-10%20at%2013.14.27.mp4"
+  },
+  {
+    "title": "Pertemuan 19",
+    "subtitle": "Bab. tingkatan beragama di dalam islam",
+    "url": "https://github.com/gplusnation/annajah/raw/refs/heads/main/WhatsApp%20Audio%202025-09-11%20at%2008.43.49.mp4"
+  },
+  {
+    "title": "Pertemuan 20",
+    "subtitle": "Bab : definisi islam",
+    "url": "https://github.com/gplusnation/annajah/raw/refs/heads/main/WhatsApp%20Audio%202025-09-12%20at%2009.15.31.mp4"
+  },
+  {
+    "title": "Pertemuan 21",
+    "subtitle": "Bab definisi islam, dalil-dalil yang menyebutkan tentang islam",
+    "url": "https://github.com/gplusnation/annajah/raw/refs/heads/main/WhatsApp%20Audio%202025-09-15%20at%2010.48.13.mp4"
+  },
+  {
+    "title": "Pertemuan 22",
+    "subtitle": "Bab : definisi islam, pembagian islam kauni dan syar'i",
+    "url": "https://github.com/gplusnation/annajah/raw/refs/heads/main/WhatsApp%20Audio%202025-09-16%20at%2009.43.08%20(2).mp4"
+  },
+  {
+    "title": "Pertemuan 23",
+    "subtitle": "Rukun islam ada 5, dan keadaan seseorang yang meninggalkan salah satu rukun tersebut",
+    "url": "https://github.com/gplusnation/annajah/raw/refs/heads/main/WhatsApp%20Audio%202025-09-17%20at%2008.52.27.mp4"
+  },
+  {
+    "title": "Pertemuan 24",
+    "subtitle": "Hukum meninggalkan sholat 5 waktu",
+    "url": "https://github.com/gplusnation/annajah/raw/refs/heads/main/WhatsApp%20Audio%202025-09-18%20at%2008.45.59.amr"
+  },
+  {
+    "title": "Pertemuan 25",
+    "subtitle": "Tahun dan tahap diwajibkan beberapa rukun Islam",
+    "url": "https://github.com/gplusnation/annajah/raw/refs/heads/main/WhatsApp%20Audio%202025-09-19%20at%2008.27.14.amr"
+  },
+  {
+    "title": "Pertemuan 26",
+    "subtitle": "Definisi beberapa rukun islam",
+    "url": "https://github.com/gplusnation/annajah/raw/refs/heads/main/WhatsApp%20Audio%202025-09-22%20at%2010.40.43.amr"
+  },
+  {
+    "title": "Pertemuan 27",
+    "subtitle": "Definisi tingkatan beragama yang kedua, al-iman",
+    "url": "https://github.com/gplusnation/annajah/raw/refs/heads/main/WhatsApp%20Audio%202025-09-23%20at%2008.22.38.amr"
+  },
+  {
+    "title": "Pertemuan 28",
+    "subtitle": "Dalil yang melandasi definisi iman",
+    "url": "https://github.com/gplusnation/annajah/raw/refs/heads/main/WhatsApp%20Audio%202025-09-24%20at%2009.55.52.mp4"
+  },
+  {
+    "title": "Pertemuan 29",
+    "subtitle": "Dalil-dalil yang menyebutkan bahwa iman bisa bertambah",
+    "url": "https://github.com/gplusnation/annajah/raw/refs/heads/main/WhatsApp%20Audio%202025-09-25%20at%2009.18.12.mp4"
+  },
+  {
+    "title": "Pertemuan 30",
+    "subtitle": "Diantar dalil yang menyebutkan iman bisa berkurang",
+    "url": "https://github.com/gplusnation/annajah/raw/refs/heads/main/WhatsApp%20Audio%202025-09-26%20at%2008.51.41.mp4"
+  },
+  {
+    "title": "Pertemuan 31",
+    "subtitle": "Beberapa pemahaman yang keliru didalam memaknai iman",
+    "url": "https://github.com/gplusnation/annajah/raw/refs/heads/main/WhatsApp%20Audio%202025-09-29%20at%2009.19.48.mp4"
+  },
+  {
+    "title": "Pertemuan 32",
+    "subtitle": "Bab rukun iman ada enam, makna beriman kepada Allah",
+    "url": "https://github.com/gplusnation/annajah/raw/refs/heads/main/WhatsApp%20Audio%202025-09-30%20at%2009.33.18.mp4"
+  },
+  {
+    "title": "Pertemuan 33",
+    "subtitle": "Argumentasi dari akal sehat bahwa Allah lah yang menciptakan alam semesta",
+    "url": "https://github.com/gplusnation/annajah/raw/refs/heads/main/WhatsApp%20Audio%202025-10-01%20at%2008.23.31.mp4"
+  },
+  {
+    "title": "Pertemuan 34",
+    "subtitle": "Bab beriman kepada allah, argumentasi dari ayat syar'i (wahyu) dan kauni (alam) yang menetapkan adanya Allah",
+    "url": "https://github.com/gplusnation/annajah/raw/refs/heads/main/WhatsApp%20Audio%202025-09-21%20at%2003.10.06.mp4"
+  },
+  {
+    "title": "Pertemuan 35",
+    "subtitle": "Bab beriman kepada Allah ta'ala, argumentasi dari panca indera yang menetapkan kebradaan Allah sebagai pencipat alam semesta",
+    "url": "https://github.com/gplusnation/annajah/raw/refs/heads/main/WhatsApp%20Audio%202025-09-22%20at%2003.24.24.mp4"
+  },
+  {
+    "title": "Pertemuan 36",
+    "subtitle": "Bab beriman kepada malaikat,\nBeriman tentang keberadaan malaikat",
+    "url": "https://github.com/gplusnation/annajah/raw/refs/heads/main/WhatsApp%20Audio%202025-09-28%20at%2003.22.45.mp4"
+  },
+  {
+    "title": "Pertemuan 37",
+    "subtitle": "Bab beriman kepada malaikat,\nBeriman tentang nama-nama malaikat",
+    "url": "https://github.com/gplusnation/annajah/raw/refs/heads/main/WhatsApp%20Audio%202025-10-01%20at%2003.28.03.mp4"
+  },
+    {
+    "title": "Pertemuan 38",
+    "subtitle": "Bab beriman kepada malaikat, Beriman tentang sifat-sifat malaikat",
+    "url": "https://github.com/gplusnation/annajah/raw/refs/heads/main/WhatsApp%20Audio%202025-10-08%20at%2013.01.45.mp4"
+  },
+
+{
+    "title": "Pertemuan 39",
+    "subtitle": "Bab beriman kepada malaikat, Beriman tentang sifat-sifat malaikat",
+    "url": "https://github.com/gplusnation/annajah/raw/refs/heads/main/WhatsApp%20Audio%202025-10-09%20at%2008.47.15.mp4"
+  },
+
+{
+    "title": "Pertemuan 40",
+    "subtitle": "Bab beriman kepada malaikat,\nBeriman tentang nama-nama malaikat",
+    "url": "https://github.com/gplusnation/annajah/raw/refs/heads/main/WhatsApp%20Audio%202025-10-10%20at%2009.24.46.mp4"
+  },
+
+{
+    "title": "Pertemuan 41",
+    "subtitle": "Bab beriman kepada malaikat,\nBeriman tentang tugas-tugas malaikat",
+    "url": "https://github.com/gplusnation/annajah/raw/refs/heads/main/41.m4a"
+  },
+
+{
+    "title": "Pertemuan 42",
+    "subtitle": "Bab beriman kepada malaikat,\nBeberapa hukum terkait dengan beriman kepada malaikat",
+    "url": "https://github.com/gplusnation/annajah/raw/refs/heads/main/42.m4a"
+  },
+
+{
+    "title": "Pertemuan 43",
+    "subtitle": "Bab beriman kepada kitab-kitab Allah, \nPengertian dan point pertama makna beriman kepada kitab-kitab Allah ta'ala",
+    "url": "https://github.com/gplusnation/annajah/raw/refs/heads/main/43.m4a"
+  },
+
+{
+    "title": "Pertemuan 44",
+    "subtitle": "Bab beriman kepada kitab-kitab Allah, \nPoint kedua beriman kepada kitab-kitab Allah ta'ala",
+    "url": "https://github.com/gplusnation/annajah/raw/refs/heads/main/44.m4a"
+  },
+
+{
+    "title": "Pertemuan 45",
+    "subtitle": "Bab beriman terhadap kitab-kitab Allah ta'ala, \npoint ke empat dari makna beriman kepada kitab-kitab Allah ta'ala",
+    "url": "https://github.com/gplusnation/annajah/raw/refs/heads/main/45.m4a"
+  },
+
+{
+    "title": "Pertemuan 46",
+    "subtitle": "Bab beriman terhadap kitab-kitab Allah ta'ala, \nHukum beriman kepada kitab-kitab Allah ta'ala",
+    "url": "https://github.com/gplusnation/annajah/raw/refs/heads/main/46.m4a"
+  },
+
+{
+    "title": "Pertemuan 47",
+    "subtitle": "Bab beriman terhadap kitab-kitab Allah ta'ala,\nDiantara kitab-kitab yang Allah sebutkan kepada kita",
+    "url": "https://github.com/gplusnation/annajah/raw/refs/heads/main/47.m4a"
+  },
+
+{
+    "title": "Pertemuan 48",
+    "subtitle": "Bab beriman terhadap kitab-kitab Allah ta'ala,\nKitab-kitab terdahulu selain al-quran telah mengalami perubahan",
+    "url": "https://github.com/gplusnation/annajah/raw/refs/heads/main/48.m4a"
+  },
+
+{
+    "title": "Pertemuan 49",
+    "subtitle": "Bab beriman terhadap kitab-kitab Allah ta'ala, \nSikap seorang muslim terhadap kitab-kitab terdahulu yang telah mengalami perubahan",
+    "url": "https://github.com/gplusnation/annajah/raw/refs/heads/main/49.m4a"
+  },
+
+{
+    "title": "Pertemuan 50",
+    "subtitle": "Bab beriman kepada rasul dan nabi allah ta'ala, \nDefinisi nabi dan rasul dan perbedaan antara keduanya",
+    "url": "https://github.com/gplusnation/annajah/raw/refs/heads/main/50.m4a"
+  },
+
+{
+    "title": "Pertemuan 51",
+    "subtitle": "Bab beriman kepada rasul dan nabi allah ta'ala, \nHukum beriman kepada nabi dan rasul",
+    "url": "https://github.com/gplusnation/annajah/raw/refs/heads/main/51.m4a"
+  },
+
+{
+    "title": "Pertemuan 52",
+    "subtitle": "Bab beriman kepada rasul dan nabi allah, \nDiantara hukum yang terkait didalam beriman kepada rasul rasul allah",
+    "url": "https://github.com/gplusnation/annajah/raw/refs/heads/main/52.m4a"
+  },
+
+{
+    "title": "Pertemuan 53",
+    "subtitle": "Bab beriman kepada nabi dan rasul,\nDiantara nabi dan rasul yang allah sebutkan di dalam al-quran",
+    "url": "https://github.com/gplusnation/annajah/raw/refs/heads/main/53.m4a"
+  },
+
+{
+    "title": "Pertemuan 54",
+    "subtitle": "Bab beriman kepada nabi dan rasul,\nBeberapa orang yang diperselisihkan apakah termasuk nabi atau bukan",
+    "url": "https://github.com/gplusnation/annajah/raw/refs/heads/main/54.m4a"
+  },
+
+{
+    "title": "Pertemuan 55",
+    "subtitle": "Bab beriman kepada malaikat,\nBeriman tentang nama-nama malaikat",
+    "url": "https://github.com/gplusnation/annajah/raw/refs/heads/main/55.m4a"
+  },
+
+{
+    "title": "Pertemuan 56",
+    "subtitle": "Bab beriman kepada nabi dan rasul,\nDiantara kekhususan-kekhususan nabi dan rasul (1)",
+    "url": "https://github.com/gplusnation/annajah/raw/refs/heads/main/56.m4a"
+  },
+
+{
+    "title": "Pertemuan 57",
+    "subtitle": "Bab beriman kepada nabi dan rasul,\nDiantara kekhususan-kekhususan nabi dan rasul (2)",
+    "url": "https://github.com/gplusnation/annajah/raw/refs/heads/main/57.m4a"
+  },
+
+{
+    "title": "Pertemuan 58",
+    "subtitle": "Bab beriman kepada nabi dan rasul, \nDiantara tugas dari nabi dan rasul",
+    "url": "https://github.com/gplusnation/annajah/raw/refs/heads/main/58.m4a"
+  },
+
+{
+    "title": "Pertemuan 59",
+    "subtitle": "Bab beriman kepada nabi dan rasul, \nPara nabi dan rasul saling bertingkat-tingkat didalam keutamaan dan kemuliaan",
+    "url": "https://github.com/gplusnation/annajah/raw/refs/heads/main/59.m4a"
+  },
+
+{
+    "title": "Pertemuan 60",
+    "subtitle": "Bab beriman kepada nabi dan rasul, \nPara nabi dan rasul adalah orang-orang yang ma'shum",
+    "url": "https://github.com/gplusnation/annajah/raw/refs/heads/main/60.m4a"
+  },
+
+{
+    "title": "Pertemuan 61",
+    "subtitle": "Bab beriman kepada nabi dan rasul,\nTanda kenabian dan mukjizat para nabi dan rasul",
+    "url": "https://github.com/gplusnation/annajah/raw/refs/heads/main/61.m4a"
+  },
+
+{
+    "title": "Pertemuan 62",
+    "subtitle": "Bab beriman kepada nabi dan rasul, \nDiantara contoh tanda kenabian dan mukjizat nabi dan rasul",
+    "url": "https://github.com/gplusnation/annajah/raw/refs/heads/main/62.m4a"
+  },
+
+{
+    "title": "Pertemuan 63",
+    "subtitle": "Bab beriman kepada nabi dan rasul, \nDiantara contoh tanda kenabian dan mukjizat rasulullah shallallahu alaihi wassalam",
+    "url": "https://github.com/gplusnation/annajah/raw/refs/heads/main/63.m4a"
+  },
+
+{
+    "title": "Pertemuan 64",
+    "subtitle": "Bab beriman kepada hari akhir,\nDefinisi dan hukum beriman kepada hari akhir",
+    "url": "https://github.com/gplusnation/annajah/raw/refs/heads/main/64.m4a"
+  },
+
+{
+    "title": "Pertemuan 65",
+    "subtitle": "Bab beriman kepada hari akhir,\nDiantara nama-nama hari akhir",
+    "url": "https://github.com/gplusnation/annajah/raw/refs/heads/main/65.m4a"
+  },
+
+{
+    "title": "Pertemuan 66",
+    "subtitle": "Bab beriman terhadap hari akhir,\n3 tahapan negeri akhirat",
+    "url": "https://github.com/gplusnation/annajah/raw/refs/heads/main/66.m4a"
+  },
+
+{
+    "title": "Pertemuan 67",
+    "subtitle": "Bab beriman terhadap hari akhir,\nTanda - tanda hari kiamat",
+    "url": "https://github.com/gplusnation/annajah/raw/refs/heads/main/67.m4a"
+  },
+
+{
+    "title": "Pertemuan 68",
+    "subtitle": "Bab beriman terhadap hari akhir,\nAllah menyembunyikan tentang kapan terjadinya hari kiamat dan hikmah dari hal tersebut",
+    "url": "https://github.com/gplusnation/annajah/raw/refs/heads/main/68.m4a"
+  },
+
+{
+    "title": "Pertemuan 69",
+    "subtitle": "Bab beriman terhadap hari akhir \nDiantara tanda-tanda kiamat kecil",
+    "url": "https://github.com/gplusnation/annajah/raw/refs/heads/main/69.m4a"
+  },
+
+{
+    "title": "Pertemuan 70",
+    "subtitle": "Bab beriman terhadap hari akhir \nDiantara tanda-tanda kiamat kecil",
+    "url": "https://github.com/gplusnation/annajah/raw/refs/heads/main/70.m4a"
+  },
+
+{
+    "title": "Pertemuan 71",
+    "subtitle": "Bab beriman terhadap hari akhir \nTanda-tanda kiamat besar",
+    "url": "https://github.com/gplusnation/annajah/raw/refs/heads/main/71.m4a"
+  },
+
+{
+    "title": "Pertemuan 72",
+    "subtitle": "Bab beriman terhadap hari akhir \nUrutan terjadinya tanda-tanda kiamat besar",
+    "url": "https://github.com/gplusnation/annajah/raw/refs/heads/main/72.m4a"
+  },
+
+{
+    "title": "Pertemuan 73",
+    "subtitle": "Bab beriman kepada hari akhir \nTanda-tanda kiamat besar",
+    "url": "https://github.com/gplusnation/annajah/raw/refs/heads/main/73.m4a"
+  },
+
+{
+    "title": "Pertemuan 74",
+    "subtitle": "Bab beriman kepada hari akhir\nTanda-tanda kiamat besar, keluarnya al-masih ad-dajjal",
+    "url": "https://github.com/gplusnation/annajah/raw/refs/heads/main/74.m4a"
+  },
+
+{
+    "title": "Pertemuan 75",
+    "subtitle": "Bab beriman kepada hari akhir\nTanda-tanda kiamat besar, turunnya al-masih nabi Isa Alaihissalam",
+    "url": "https://github.com/gplusnation/annajah/raw/refs/heads/main/75.m4a"
+  },
+
+{
+    "title": "Pertemuan 76",
+    "subtitle": "Bab beriman kepada hari akhir\nTanda-tanda kiamat besar, keluarnya yajuj majuj",
+    "url": "https://github.com/gplusnation/annajah/raw/refs/heads/main/76.m4a"
+  },
+
+{
+    "title": "Pertemuan 77",
+    "subtitle": "Bab beriman kepada hari akhir\nTanda-tanda kiamat besar, keluarnya asap",
+    "url": "https://github.com/gplusnation/annajah/raw/refs/heads/main/77.m4a"
+  },
+
+
+    
+    ]; // ⬅️ Ganti dengan array audio dari Anda
+
+    audioFiles.sort((a, b) => {
+      const numA = parseInt(a.title.split(' ')[1]);
+      const numB = parseInt(b.title.split(' ')[1]);
+      return numA - numB;
+    });
+
+    const audioPlayer = document.getElementById("audio-player");
+    const playlistContainer = document.getElementById("playlist-container");
+    const currentTitle = document.getElementById("current-title");
+    const currentSubtitle = document.getElementById("current-subtitle");
+    const prevBtn = document.getElementById("prev-btn");
+    const nextBtn = document.getElementById("next-btn");
+
+    let currentTrackIndex = 0;
+    let currentPage = 1;
+    const itemsPerPage = 10;
+
+    function loadTrack(index) {
+      currentTrackIndex = index;
+      const track = audioFiles[currentTrackIndex];
+
+      audioPlayer.src = track.url;
+      currentTitle.textContent = track.title;
+      currentSubtitle.textContent = track.subtitle || "(Tidak ada deskripsi)";
+
+      audioPlayer.play().catch(() => {});
+      updatePlaylistUI();
+    }
+
+    function updatePlaylistUI() {
+      const listItems = playlistContainer.querySelectorAll("li");
+      listItems.forEach((item, index) => {
+        const actualIndex = (currentPage - 1) * itemsPerPage + index;
+        item.classList.remove("current-track");
+        if (actualIndex === currentTrackIndex) {
+          item.classList.add("current-track");
+        }
+      });
+    }
+
+    function renderPlaylistPage(page) {
+  playlistContainer.innerHTML = "";
+  const start = (page - 1) * itemsPerPage;
+  const end = Math.min(start + itemsPerPage, audioFiles.length);
+
+  for (let i = start; i < end; i++) {
+    const track = audioFiles[i];
+    const listItem = document.createElement("li");
+
+    const titleSpan = document.createElement("span");
+    titleSpan.className = "list-title";
+    titleSpan.textContent = track.title; // Nomor dihapus di sini
+    listItem.appendChild(titleSpan);
+
+    if (track.subtitle) {
+      const subtitleSpan = document.createElement("span");
+      subtitleSpan.className = "list-subtitle";
+      subtitleSpan.textContent = track.subtitle;
+      listItem.appendChild(subtitleSpan);
+    }
+
+    listItem.addEventListener("click", () => {
+      loadTrack(i);
+    });
+
+    playlistContainer.appendChild(listItem);
+  }
+
+  updatePaginationButtons();
+  updatePlaylistUI();
+}
+
+    function updatePaginationButtons() {
+      const totalPages = Math.ceil(audioFiles.length / itemsPerPage);
+      prevBtn.disabled = currentPage === 1;
+      nextBtn.disabled = currentPage === totalPages;
+    }
+
+    prevBtn.addEventListener("click", () => {
+      if (currentPage > 1) {
+        currentPage--;
+        renderPlaylistPage(currentPage);
+      }
+    });
+
+    nextBtn.addEventListener("click", () => {
+      const totalPages = Math.ceil(audioFiles.length / itemsPerPage);
+      if (currentPage < totalPages) {
+        currentPage++;
+        renderPlaylistPage(currentPage);
+      }
+    });
+
+    audioPlayer.addEventListener("ended", () => {
+      if (currentTrackIndex + 1 < audioFiles.length) {
+        currentTrackIndex++;
+        loadTrack(currentTrackIndex);
+        const newPage = Math.floor(currentTrackIndex / itemsPerPage) + 1;
+        if (newPage !== currentPage) {
+          currentPage = newPage;
+          renderPlaylistPage(currentPage);
+        }
+      } else {
+        currentTitle.textContent = "Playlist Selesai.";
+        currentSubtitle.textContent = "Ulangi atau pilih trek baru.";
+      }
+    });
+
+    // Inisialisasi
+    if (audioFiles.length > 0) {
+      loadTrack(0);
+      renderPlaylistPage(currentPage);
+    } else {
+      currentTitle.textContent = "Playlist kosong.";
+      currentSubtitle.textContent = "";
+    }
+  </script>
+</body>
+</html>
